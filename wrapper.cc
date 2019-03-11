@@ -47,8 +47,6 @@ void setNameObject(Isolate *isolate, Local<Object> obj, Person *person)
 			  String::NewFromUtf8(isolate, person->firstName().c_str()));
 	name->Set(String::NewFromUtf8(isolate, "familyName"),
 			  String::NewFromUtf8(isolate, person->lastName().c_str()));
-	name->Set(String::NewFromUtf8(isolate, "nickname"),
-			  String::NewFromUtf8(isolate, person->nickname().c_str()));
 	obj->Set(String::NewFromUtf8(isolate, "name"), name);
 }
 
@@ -69,13 +67,13 @@ void setOrganizationObject(Isolate *isolate, Local<Object> obj, Person *person)
 void setAddressObject(Isolate *isolate, Local<Object> obj, Person *person)
 {
 	Local<Object> address = Object::New(isolate);
-	address->Set(String::NewFromUtf8(isolate, "street"),
+	address->Set(String::NewFromUtf8(isolate, "streetAddress"),
 				 String::NewFromUtf8(isolate, person->street().c_str()));
-	address->Set(String::NewFromUtf8(isolate, "city"),
+	address->Set(String::NewFromUtf8(isolate, "locality"),
 				 String::NewFromUtf8(isolate, person->city().c_str()));
-	address->Set(String::NewFromUtf8(isolate, "state"),
+	address->Set(String::NewFromUtf8(isolate, "region"),
 				 String::NewFromUtf8(isolate, person->state().c_str()));
-	address->Set(String::NewFromUtf8(isolate, "zip"),
+	address->Set(String::NewFromUtf8(isolate, "postalCode"),
 				 String::NewFromUtf8(isolate, person->zip().c_str()));
 	address->Set(String::NewFromUtf8(isolate, "country"),
 				 String::NewFromUtf8(isolate, person->country().c_str()));
@@ -88,14 +86,15 @@ void setAddressObject(Isolate *isolate, Local<Object> obj, Person *person)
 
 void fillPersonObject(Isolate *isolate, Local<Object> obj, Person *person)
 {
-	obj->Set(String::NewFromUtf8(isolate, "uniqueId"),
+	obj->Set(String::NewFromUtf8(isolate, "id"),
 			 String::NewFromUtf8(isolate, person->uniqueId().c_str()));
 
 	setNameObject(isolate, obj, person);
+	obj->Set(String::NewFromUtf8(isolate, "nickname"),
+		String::NewFromUtf8(isolate, person->nickname().c_str()));
+
 	setOrganizationObject(isolate, obj, person);
 
-	obj->Set(String::NewFromUtf8(isolate, "organization"),
-			 String::NewFromUtf8(isolate, person->organization().c_str()));
 	obj->Set(String::NewFromUtf8(isolate, "note"),
 			 String::NewFromUtf8(isolate, person->note().c_str()));
 

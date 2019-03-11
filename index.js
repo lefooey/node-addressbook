@@ -42,16 +42,7 @@ function decodeLabeledArray(arr) {
 
 
 function contactObject(abObject) {
-	let co = {
-		uniqueId: abObject.uniqueId || null,
-		name: abObject.name || null,
-		organizations: abObject.organizations || [],
-		addresses: abObject.addresses || [],
-		emails: decodeLabeledArray(abObject.emails),
-		phoneNumbers: decodeLabeledArray(abObject.phoneNumbers),
-		note: abObject.note || null
-	}
-	return co;
+	return { ...abObject, emails:decodeLabeledArray(abObject.emails),phoneNumbers: decodeLabeledArray(abObject.phoneNumbers) };
 }
 
 const lib = {
