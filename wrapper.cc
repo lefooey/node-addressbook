@@ -67,6 +67,7 @@ void setOrganizationObject(Isolate *isolate, Local<Object> obj, Person *person)
 void setAddressObject(Isolate *isolate, Local<Object> obj, Person *person)
 {
 	Local<Object> address = Object::New(isolate);
+	address->Set(String::NewFromUtf8(isolate, "pref"), True());
 	address->Set(String::NewFromUtf8(isolate, "streetAddress"),
 				 String::NewFromUtf8(isolate, person->street().c_str()));
 	address->Set(String::NewFromUtf8(isolate, "locality"),

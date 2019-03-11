@@ -66,7 +66,6 @@ void Person::fillLabelVector(ABPersonRef person, CFStringRef propertyName, label
 			CFRelease(propertyLabel);
 			CFRelease(propertyVal);
 		}
-		CFRelease(propertyArray);
 	}
 }
 
@@ -84,10 +83,13 @@ std::string Person::getAddressProperty(ABPersonRef person, CFStringRef propertyN
 		if (addr)
 		{
 			CFStringRef propertyVal = (CFStringRef)CFDictionaryGetValue(addr, propertyName);
-			rv = CFString2String(propertyVal);
-			CFRelease(addr);
+			if (propertyVal) {
+				rv = CFString2String(propertyVal);
+				CFRelease(propertyVal);
+			} else {
+				rv = "";
+			}
 		}
-		CFRelease(addressList);
 	}
 	return rv;
 }
