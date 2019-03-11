@@ -20,38 +20,62 @@
 
 #include <string>
 #include <vector>
+#include <map>
 #ifdef __APPLE__
 #include <AddressBook/ABAddressBookC.h>
 #endif
 
 typedef std::vector<std::string> stringvector;
+typedef std::map<std::string, std::string> labelmap;
+typedef std::vector<labelmap> labelvector;
 
 class Person
 {
-public:
-    Person();
+  public:
+	Person();
 #ifdef __APPLE__
-    Person(ABPersonRef p);
+	Person(ABPersonRef p);
 #endif
 
-    const std::string& firstName() const { return m_firstName; }
-    const std::string& lastName() const { return m_lastName; }
+	const std::string &uniqueId() const
+	{
+		return m_uniqueId;
+	}
+	const std::string &firstName() const { return m_firstName; }
+	const std::string &lastName() const { return m_lastName; }
+	const std::string &nickname() const { return m_nickname; }
+	const std::string &organization() const { return m_organization; }
+	const std::string &title() const { return m_title; }
+	const std::string &note() const { return m_note; }
+	const std::string &street() const { return m_street; }
+	const std::string &city() const { return m_city; }
+	const std::string &state() const { return m_state; }
+	const std::string &zip() const { return m_zip; }
+	const std::string &country() const { return m_country; }
+	const labelvector &phoneNumbers() const;
+	const labelvector &emails() const;
 
-
-    const stringvector& numbers() const;
-    const stringvector& emails() const;
-
-private:
+  private:
 #ifdef __APPLE__
-    static std::string CFString2String(CFStringRef str);
-    static std::string getStringProperty(ABPersonRef person, CFStringRef propertyName);
-    static void fillPropertyVector(ABPersonRef person, CFStringRef propertyName, stringvector& vec);
+	static std::string CFString2String(CFStringRef str);
+	static std::string getStringProperty(ABPersonRef person, CFStringRef propertyName);
+	static void fillLabelVector(ABPersonRef person, CFStringRef propertyName, labelvector &vec);
+	static std::string getAddressProperty(ABPersonRef person, CFStringRef propertyName);
 #endif
-    std::string m_firstName;
-    std::string m_lastName;
-    stringvector m_numbers;
-    stringvector m_emails;
+	std::string m_uniqueId;
+	std::string m_firstName;
+	std::string m_lastName;
+	std::string m_nickname;
+	std::string m_city;
+	std::string m_street;
+	std::string m_state;
+	std::string m_zip;
+	std::string m_country;
+	std::string m_note;
+	std::string m_organization;
+	std::string m_title;
+	labelvector m_phoneNumbers;
+	labelvector m_emails;
 };
 
 #endif // PERSON_H
-

@@ -21,16 +21,17 @@
 #ifdef __APPLE__
 std::string Person::CFString2String(CFStringRef str)
 {
-        std::string rv;
-        CFIndex length = CFStringGetLength(str);
-        CFIndex maxSize = CFStringGetMaximumSizeForEncoding(length, kCFStringEncodingUTF8) + 1;
-        char *buffer = (char *)malloc(maxSize);
-        if (CFStringGetCString(str, buffer, maxSize, kCFStringEncodingUTF8)) {
-                rv = buffer;
+	std::string rv;
+	CFIndex length = CFStringGetLength(str);
+	CFIndex maxSize = CFStringGetMaximumSizeForEncoding(length, kCFStringEncodingUTF8) + 1;
+	char *buffer = (char *)malloc(maxSize);
+	if (CFStringGetCString(str, buffer, maxSize, kCFStringEncodingUTF8))
+	{
+		rv = buffer;
 		free(buffer);
-        }   
+	}
 
-        return rv; 
+	return rv;
 }
 
 std::string Person::getStringProperty(ABPersonRef person, CFStringRef propertyName)
@@ -38,27 +39,59 @@ std::string Person::getStringProperty(ABPersonRef person, CFStringRef propertyNa
 	CFStringRef propertyVal = (CFStringRef)ABRecordCopyValue(person, propertyName);
 	std::string rv;
 
-	if (propertyVal && CFGetTypeID(propertyVal) == CFStringGetTypeID()) {
+	if (propertyVal && CFGetTypeID(propertyVal) == CFStringGetTypeID())
+	{
 		rv = CFString2String(propertyVal);
 		CFRelease(propertyVal);
-	}   
+	}
 
 	return rv;
 }
 
-void Person::fillPropertyVector(ABPersonRef person, CFStringRef propertyName, stringvector& vec)
+void Person::fillLabelVector(ABPersonRef person, CFStringRef propertyName, labelvector &vec)
 {
-        ABMultiValueRef propertyArray = (ABMultiValueRef)ABRecordCopyValue(person, propertyName);
+	ABMultiValueRef propertyArray = (ABMultiValueRef)ABRecordCopyValue(person, propertyName);
 
-        if (propertyArray) {
-                CFIndex count = ABMultiValueCount(propertyArray);
-                for(CFIndex p = 0; p < count; p++) {
-                        CFStringRef propertyVal = (CFStringRef)ABMultiValueCopyValueAtIndex(propertyArray, p);
-			vec.push_back(CFString2String(propertyVal));
-                        CFRelease(propertyVal);
-                }   
-        }
+	if (propertyArray)
+	{
+		CFIndex count = ABMultiValueCount(propertyArray);
+		for (CFIndex p = 0; p < count; p++)
+		{
+			labelmap vm;
+			CFStringRef propertyLabel = (CFStringRef)ABMultiValueCopyLabelAtIndex(propertyArray, p);
+			CFStringRef propertyVal = (CFStringRef)ABMultiValueCopyValueAtIndex(propertyArray, p);
+			vm.insert(std::pair<std::string, std::string>("type", CFString2String(propertyLabel)));
+			vm.insert(std::pair<std::string, std::string>("value", CFString2String(propertyVal)));
+			vec.push_back(vm);
+			CFRelease(propertyLabel);
+			CFRelease(propertyVal);
+		}
+		CFRelease(propertyArray);
+	}
 }
+
+std::string Person::getAddressProperty(ABPersonRef person, CFStringRef propertyName)
+{
+	ABMultiValueRef addressList = (ABMultiValueRef)ABRecordCopyValue(person, kABAddressProperty);
+	std::string rv;
+
+	if (addressList)
+	{
+		CFStringRef primaryIdentifier = ABMultiValueCopyPrimaryIdentifier(addressList);
+		int primaryIndex = ABMultiValueIndexForIdentifier(addressList, primaryIdentifier);
+		CFRelease(primaryIdentifier);
+		CFDictionaryRef addr = (CFDictionaryRef)ABMultiValueCopyValueAtIndex(addressList, primaryIndex);
+		if (addr)
+		{
+			CFStringRef propertyVal = (CFStringRef)CFDictionaryGetValue(addr, propertyName);
+			rv = CFString2String(propertyVal);
+			CFRelease(addr);
+		}
+		CFRelease(addressList);
+	}
+	return rv;
+}
+
 #endif
 
 Person::Person()
@@ -68,21 +101,30 @@ Person::Person()
 #ifdef __APPLE__
 Person::Person(ABPersonRef p)
 {
+	m_uniqueId = getStringProperty(p, kABUIDProperty);
 	m_firstName = getStringProperty(p, kABFirstNameProperty);
 	m_lastName = getStringProperty(p, kABLastNameProperty);
+	m_nickname = getStringProperty(p, kABNicknameProperty);
+	m_organization = getStringProperty(p, kABOrganizationProperty);
+	m_title = getStringProperty(p, kABTitleProperty);
+	m_note = getStringProperty(p, kABNoteProperty);
+	m_street = getAddressProperty(p, kABAddressStreetKey);
+	m_city = getAddressProperty(p, kABAddressCityKey);
+	m_state = getAddressProperty(p, kABAddressStateKey);
+	m_zip = getAddressProperty(p, kABAddressZIPKey);
+	m_country = getAddressProperty(p, kABAddressCountryKey);
 
-	fillPropertyVector(p, kABEmailProperty, m_emails);
-	fillPropertyVector(p, kABPhoneProperty, m_numbers);
+	fillLabelVector(p, kABEmailProperty, m_emails);
+	fillLabelVector(p, kABPhoneProperty, m_phoneNumbers);
 }
 #endif
 
-const stringvector& Person::numbers() const
+const labelvector &Person::phoneNumbers() const
 {
-	return m_numbers;
+	return m_phoneNumbers;
 }
 
-const stringvector& Person::emails() const
+const labelvector &Person::emails() const
 {
 	return m_emails;
 }
-
