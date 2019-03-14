@@ -34,6 +34,22 @@ std::string Person::CFString2String(CFStringRef str)
 	return rv;
 }
 
+std::string Person::CFData2String(CFDataRef data)
+{
+	std::string rv;
+	CFIndex length = CFDataGetLength(data);
+	if (length) {
+		unsigned char *buffer = (unsigned char *)malloc(length+1);
+		CFDataGetBytes(data, CFRangeMake(0,length), buffer);
+		rv = base64_encode(buffer, length);
+		free(buffer);
+	} else {
+		rv = "";
+	}
+	return rv;
+
+}
+
 std::string Person::getStringProperty(ABPersonRef person, CFStringRef propertyName)
 {
 	CFStringRef propertyVal = (CFStringRef)ABRecordCopyValue(person, propertyName);
@@ -94,7 +110,56 @@ std::string Person::getAddressProperty(ABPersonRef person, CFStringRef propertyN
 	return rv;
 }
 
+std::string Person::getImageProperty(ABPersonRef person)
+{
+	CFDataRef imageData = ABPersonCopyImageData(person);
+	return CFData2String(imageData);
+}
+
 #endif
+
+std::string Person::base64_encode(unsigned char const* bytes_to_encode, unsigned int in_len) {
+  std::string ret;
+  int i = 0;
+  int j = 0;
+  unsigned char char_array_3[3];
+  unsigned char char_array_4[4];
+
+  while (in_len--) {
+    char_array_3[i++] = *(bytes_to_encode++);
+    if (i == 3) {
+      char_array_4[0] = (char_array_3[0] & 0xfc) >> 2;
+      char_array_4[1] = ((char_array_3[0] & 0x03) << 4) + ((char_array_3[1] & 0xf0) >> 4);
+      char_array_4[2] = ((char_array_3[1] & 0x0f) << 2) + ((char_array_3[2] & 0xc0) >> 6);
+      char_array_4[3] = char_array_3[2] & 0x3f;
+
+      for(i = 0; (i <4) ; i++)
+        ret += person_base64_chars[char_array_4[i]];
+      i = 0;
+    }
+  }
+
+  if (i)
+  {
+    for(j = i; j < 3; j++)
+      char_array_3[j] = '\0';
+
+    char_array_4[0] = ( char_array_3[0] & 0xfc) >> 2;
+    char_array_4[1] = ((char_array_3[0] & 0x03) << 4) + ((char_array_3[1] & 0xf0) >> 4);
+    char_array_4[2] = ((char_array_3[1] & 0x0f) << 2) + ((char_array_3[2] & 0xc0) >> 6);
+
+    for (j = 0; (j < i + 1); j++)
+      ret += person_base64_chars[char_array_4[j]];
+
+    while((i++ < 3))
+      ret += '=';
+
+  }
+
+  return ret;
+
+}
+
 
 Person::Person()
 {
@@ -115,10 +180,11 @@ Person::Person(ABPersonRef p)
 	m_state = getAddressProperty(p, kABAddressStateKey);
 	m_zip = getAddressProperty(p, kABAddressZIPKey);
 	m_country = getAddressProperty(p, kABAddressCountryKey);
-
+	m_image = getImageProperty(p);
 	fillLabelVector(p, kABEmailProperty, m_emails);
 	fillLabelVector(p, kABPhoneProperty, m_phoneNumbers);
 }
+
 #endif
 
 const labelvector &Person::phoneNumbers() const

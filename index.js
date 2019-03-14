@@ -15,10 +15,10 @@
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-const addressbook = require('./build/Release/electron-addressbook');
+const addressbook = require("./build/Release/electron-addressbook");
 
 function decodeLabel(label) {
-	if (label.substring(0,3) == '_$!') {
+	if (label.substring(0, 3) == "_$!") {
 		let items = label.match(/<(.*)>/);
 		if (items) {
 			label = items[1];
@@ -30,7 +30,7 @@ function decodeLabel(label) {
 function decodeLabeledArray(arr) {
 	let newArr = [];
 	if (arr && arr.length) {
-		for(let n = 0; n < arr.length; n++) {
+		for (let n = 0; n < arr.length; n++) {
 			newArr.push({
 				type: decodeLabel(arr[n].type),
 				value: arr[n].value || null
@@ -40,56 +40,63 @@ function decodeLabeledArray(arr) {
 	return newArr;
 }
 
+function makeNull(item) {
+	return item || null;
+}
 
 function contactObject(abObject) {
-	return { ...abObject, emails:decodeLabeledArray(abObject.emails),phoneNumbers: decodeLabeledArray(abObject.phoneNumbers) };
+	return {
+		...abObject,
+		emails: decodeLabeledArray(abObject.emails),
+		phoneNumbers: decodeLabeledArray(abObject.phoneNumbers),
+		image: makeNull(abObject.image)
+	};
 }
 
 const lib = {
-    /**
-     * Get Contact Information from the AddressBook using it's index
-     *
-     * @param {int} [index] contact index in the Addressbook
-     * @return {Object} Contact Information
-     */
-    getContact: function (index) {
-        return contactObject(addressbook.getContact(index));
-    },
-    /**
-     * Get Contact Information for the logged-in user
-     *
-     * @return {Object} Contact Information
-     */
-    getMe: function () {
-        return contactObject(addressbook.getMe());
-    },
-    /**
-     * Returns the number of contacts in the AddressBook.
-     *
-     * @return {int} number of contacts in the AddressBook.
-     */
-    getContactsCount: function () {
-        return addressbook.getContactsCount();
-    },
-    /**
-     * Get all contacts information from the AddressBook
-     *
-     * @param {Function} [onProgress] Callback provides overall process percent as an integer value between 1 to 100
-     * @param {Function} [onFinish] Callback provides an array contains all of the Addressbook contacts information
-     */
-    getContacts: function (onProgress, onFinish) {
-		if (typeof onProgress !== 'function') {
+	/**
+	 * Get Contact Information from the AddressBook using it's index
+	 *
+	 * @param {int} [index] contact index in the Addressbook
+	 * @return {Object} Contact Information
+	 */
+	getContact: function(index) {
+		return contactObject(addressbook.getContact(index));
+	},
+	/**
+	 * Get Contact Information for the logged-in user
+	 *
+	 * @return {Object} Contact Information
+	 */
+	getMe: function() {
+		return contactObject(addressbook.getMe());
+	},
+	/**
+	 * Returns the number of contacts in the AddressBook.
+	 *
+	 * @return {int} number of contacts in the AddressBook.
+	 */
+	getContactsCount: function() {
+		return addressbook.getContactsCount();
+	},
+	/**
+	 * Get all contacts information from the AddressBook
+	 *
+	 * @param {Function} [onProgress] Callback provides overall process percent as an integer value between 1 to 100
+	 * @param {Function} [onFinish] Callback provides an array contains all of the Addressbook contacts information
+	 */
+	getContacts: function(onProgress, onFinish) {
+		if (typeof onProgress !== "function") {
 			onProgress = function() {};
 		}
-		return addressbook.getContacts(onProgress,
-			function(contacts) {
-				let contactObjects = [];
-				for(let n = 0; n < contacts.length; n++) {
-					contactObjects.push(contactObject(contacts[n]));
-				}
-				onFinish(contactObjects);
-			});
-    }
+		return addressbook.getContacts(onProgress, function(contacts) {
+			let contactObjects = [];
+			for (let n = 0; n < contacts.length; n++) {
+				contactObjects.push(contactObject(contacts[n]));
+			}
+			onFinish(contactObjects);
+		});
+	}
 };
 
 module.exports = lib;

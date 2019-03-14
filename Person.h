@@ -29,6 +29,11 @@ typedef std::vector<std::string> stringvector;
 typedef std::map<std::string, std::string> labelmap;
 typedef std::vector<labelmap> labelvector;
 
+static const std::string person_base64_chars =
+             "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+             "abcdefghijklmnopqrstuvwxyz"
+             "0123456789+/";
+
 class Person
 {
   public:
@@ -52,16 +57,21 @@ class Person
 	const std::string &state() const { return m_state; }
 	const std::string &zip() const { return m_zip; }
 	const std::string &country() const { return m_country; }
+	const std::string &image() const { return m_image; }
 	const labelvector &phoneNumbers() const;
 	const labelvector &emails() const;
 
   private:
+
 #ifdef __APPLE__
 	static std::string CFString2String(CFStringRef str);
+	static std::string CFData2String(CFDataRef data);
 	static std::string getStringProperty(ABPersonRef person, CFStringRef propertyName);
 	static void fillLabelVector(ABPersonRef person, CFStringRef propertyName, labelvector &vec);
 	static std::string getAddressProperty(ABPersonRef person, CFStringRef propertyName);
+	static std::string getImageProperty(ABPersonRef person);
 #endif
+	static std::string base64_encode(unsigned char const* bytes_to_encode, unsigned int in_len);
 	std::string m_uniqueId;
 	std::string m_firstName;
 	std::string m_lastName;
@@ -74,6 +84,7 @@ class Person
 	std::string m_note;
 	std::string m_organization;
 	std::string m_title;
+	std::string m_image;
 	labelvector m_phoneNumbers;
 	labelvector m_emails;
 };

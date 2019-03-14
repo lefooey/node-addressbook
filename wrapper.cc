@@ -103,6 +103,9 @@ void fillPersonObject(Isolate *isolate, Local<Object> obj, Person *person)
 
 	setVectorArray(isolate, obj, "emails", person->emails());
 	setVectorArray(isolate, obj, "phoneNumbers", person->phoneNumbers());
+
+	obj->Set(String::NewFromUtf8(isolate, "image"),
+			 String::NewFromUtf8(isolate, person->image().c_str()));
 }
 
 class AddressBookWorker : public AsyncProgressWorker
