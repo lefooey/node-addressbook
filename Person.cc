@@ -112,8 +112,15 @@ std::string Person::getAddressProperty(ABPersonRef person, CFStringRef propertyN
 
 std::string Person::getImageProperty(ABPersonRef person)
 {
+	std::string rv;
 	CFDataRef imageData = ABPersonCopyImageData(person);
-	return CFData2String(imageData);
+	if (imageData) {
+		rv = CFData2String(imageData);
+		CFRelease(imageData);
+	} else {
+		rv = "";
+	}
+	return rv;
 }
 
 #endif
