@@ -31,81 +31,81 @@ void setVectorArray(Isolate *isolate, Local<Object> obj, const char *name, const
 	{
 		labelmap s = src[i];
 		Local<Object> item = Object::New(isolate);
-		item->Set(String::NewFromUtf8(isolate, "type"),
-				  String::NewFromUtf8(isolate, s["type"].c_str()));
-		item->Set(String::NewFromUtf8(isolate, "value"),
-				  String::NewFromUtf8(isolate, s["value"].c_str()));
-		array->Set(i, item);
+		Nan::Set(item, New<String>("type").ToLocalChecked(),
+				  String::NewFromUtf8(isolate, s["type"].c_str(), NewStringType::kNormal).ToLocalChecked());
+		Nan::Set(item, New<String>("value").ToLocalChecked(),
+				String::NewFromUtf8(isolate, s["value"].c_str(), NewStringType::kNormal).ToLocalChecked());
+		Nan::Set(array, i, item);
 	}
-	obj->Set(String::NewFromUtf8(isolate, name), array);
+	Nan::Set(obj, String::NewFromUtf8(isolate, name, NewStringType::kNormal).ToLocalChecked(), array);
 }
 
 void setNameObject(Isolate *isolate, Local<Object> obj, Person *person)
 {
 	Local<Object> name = Object::New(isolate);
-	name->Set(String::NewFromUtf8(isolate, "givenName"),
-			  String::NewFromUtf8(isolate, person->firstName().c_str()));
-	name->Set(String::NewFromUtf8(isolate, "familyName"),
-			  String::NewFromUtf8(isolate, person->lastName().c_str()));
-	obj->Set(String::NewFromUtf8(isolate, "name"), name);
+	Nan::Set(name, New<String>("givenName").ToLocalChecked(),
+			  String::NewFromUtf8(isolate, person->firstName().c_str(), NewStringType::kNormal).ToLocalChecked());
+	Nan::Set(name, New<String>("familyName").ToLocalChecked(),
+			  String::NewFromUtf8(isolate, person->lastName().c_str(), NewStringType::kNormal).ToLocalChecked());
+	Nan::Set(obj, New<String>("name").ToLocalChecked(), name);
 }
 
 void setOrganizationObject(Isolate *isolate, Local<Object> obj, Person *person)
 {
 	Local<Object> organization = Object::New(isolate);
-	organization->Set(String::NewFromUtf8(isolate, "name"),
-					  String::NewFromUtf8(isolate, person->organization().c_str()));
-	organization->Set(String::NewFromUtf8(isolate, "title"),
-					  String::NewFromUtf8(isolate, person->title().c_str()));
+	Nan::Set(organization, New<String>("name").ToLocalChecked(),
+					  String::NewFromUtf8(isolate, person->organization().c_str(), NewStringType::kNormal).ToLocalChecked());
+	Nan::Set(organization, New<String>("title").ToLocalChecked(),
+					  String::NewFromUtf8(isolate, person->title().c_str(), NewStringType::kNormal).ToLocalChecked());
 
 	Local<Array> organizationList = Array::New(isolate);
-	organizationList->Set(0, organization);
+	Nan::Set(organizationList, 0, organization);
 
-	obj->Set(String::NewFromUtf8(isolate, "organizations"), organizationList);
+	Nan::Set(obj, New<String>("organizations").ToLocalChecked(), organizationList);
 }
 
 void setAddressObject(Isolate *isolate, Local<Object> obj, Person *person)
 {
 	Local<Object> address = Object::New(isolate);
-	address->Set(String::NewFromUtf8(isolate, "pref"), True());
-	address->Set(String::NewFromUtf8(isolate, "streetAddress"),
-				 String::NewFromUtf8(isolate, person->street().c_str()));
-	address->Set(String::NewFromUtf8(isolate, "locality"),
-				 String::NewFromUtf8(isolate, person->city().c_str()));
-	address->Set(String::NewFromUtf8(isolate, "region"),
-				 String::NewFromUtf8(isolate, person->state().c_str()));
-	address->Set(String::NewFromUtf8(isolate, "postalCode"),
-				 String::NewFromUtf8(isolate, person->zip().c_str()));
-	address->Set(String::NewFromUtf8(isolate, "country"),
-				 String::NewFromUtf8(isolate, person->country().c_str()));
+	Nan::Set(address, New<String>("pref").ToLocalChecked(), True());
+	Nan::Set(address, New<String>("streetAddress").ToLocalChecked(),
+				 String::NewFromUtf8(isolate, person->street().c_str(), NewStringType::kNormal).ToLocalChecked());
+	Nan::Set(address, New<String>("locality").ToLocalChecked(),
+				 String::NewFromUtf8(isolate, person->city().c_str(), NewStringType::kNormal).ToLocalChecked());
+	Nan::Set(address, New<String>("region").ToLocalChecked(),
+				 String::NewFromUtf8(isolate, person->state().c_str(), NewStringType::kNormal).ToLocalChecked());
+	Nan::Set(address, New<String>("postalCode").ToLocalChecked(),
+				 String::NewFromUtf8(isolate, person->zip().c_str(), NewStringType::kNormal).ToLocalChecked());
+	Nan::Set(address, New<String>("country").ToLocalChecked(),
+				 String::NewFromUtf8(isolate, person->country().c_str(), NewStringType::kNormal).ToLocalChecked());
 
 	Local<Array> addressList = Array::New(isolate);
-	addressList->Set(0, address);
+	Nan::Set(addressList, 0, address);
 
-	obj->Set(String::NewFromUtf8(isolate, "addresses"), addressList);
+	Nan::Set(obj, New<String>("addresses").ToLocalChecked(), addressList);
 }
 
 void fillPersonObject(Isolate *isolate, Local<Object> obj, Person *person)
 {
-	obj->Set(String::NewFromUtf8(isolate, "id"),
-			 String::NewFromUtf8(isolate, person->uniqueId().c_str()));
+	Nan::Set(obj, New<String>("id").ToLocalChecked(),
+			 String::NewFromUtf8(isolate, person->uniqueId().c_str(), NewStringType::kNormal).ToLocalChecked());
 
 	setNameObject(isolate, obj, person);
-	obj->Set(String::NewFromUtf8(isolate, "nickname"),
-		String::NewFromUtf8(isolate, person->nickname().c_str()));
+	Nan::Set(obj, New<String>("nickname").ToLocalChecked(),
+		String::NewFromUtf8(isolate, person->nickname().c_str(), NewStringType::kNormal).ToLocalChecked());
 
 	setOrganizationObject(isolate, obj, person);
 
-	obj->Set(String::NewFromUtf8(isolate, "note"),
-			 String::NewFromUtf8(isolate, person->note().c_str()));
+	Nan::Set(obj, New<String>("note").ToLocalChecked(),
+			 String::NewFromUtf8(isolate, person->note().c_str(), NewStringType::kNormal).ToLocalChecked());
 
 	setAddressObject(isolate, obj, person);
 
 	setVectorArray(isolate, obj, "emails", person->emails());
 	setVectorArray(isolate, obj, "phoneNumbers", person->phoneNumbers());
 
-	obj->Set(String::NewFromUtf8(isolate, "image"),
-			 String::NewFromUtf8(isolate, person->image().c_str()));
+	Nan::Set(obj, New<String>("image").ToLocalChecked(),
+			 String::NewFromUtf8(isolate, person->image().c_str(), NewStringType::kNormal).ToLocalChecked());
 }
 
 class AddressBookWorker : public AsyncProgressWorker
@@ -183,7 +183,7 @@ NAN_METHOD(GetMe)
 
 NAN_METHOD(GetContact)
 {
-	int index = info[0]->Uint32Value();
+	int index = info[0].As<Uint32>()->Value();
 
 	AddressBook ab;
 	Isolate *isolate = Isolate::GetCurrent();
