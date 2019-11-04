@@ -133,8 +133,9 @@ class AddressBookWorker : public AsyncProgressWorker
 		Nan::HandleScope scope;
 
 		v8::Local<v8::Value> argv[] = {
-			New<v8::Integer>(*reinterpret_cast<int *>(const_cast<char *>(data)))};
-		progress->Call(1, argv);
+			New<v8::Integer>(*reinterpret_cast<int *>(const_cast<char *>(data)))
+		};
+		Nan::Call(*progress, 1, argv);
 	}
 
 	// We have the results, and we're back in the event loop.
@@ -153,7 +154,7 @@ class AddressBookWorker : public AsyncProgressWorker
 		});
 
 		Local<Value> argv[] = {results};
-		callback->Call(1, argv);
+		Nan::Call(*callback, 1, argv);
 	}
 
   private:

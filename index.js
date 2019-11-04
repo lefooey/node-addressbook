@@ -89,6 +89,9 @@ const lib = {
 		if (typeof onProgress !== "function") {
 			onProgress = function() {};
 		}
+		if (typeof onFinish !== "function") {
+			return;
+		}
 		return addressbook.getContacts(onProgress, function(contacts) {
 			let contactObjects = [];
 			for (let n = 0; n < contacts.length; n++) {
